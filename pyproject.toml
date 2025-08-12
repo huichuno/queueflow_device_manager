@@ -1,0 +1,26 @@
+[project]
+name = "queueflow-device-manager"
+version = "0.1.0"
+description = "AI Agent for managing queue flow using Device Management Toolkit"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "google-adk>=1.10.0",
+    "litellm==1.74.15",
+    "mcp[cli]>=1.12.4",
+    "python-dotenv>=1.1.1",
+    "quixstreams>=3.22.0",
+]
+[dependency-groups]
+dev = [
+    "pytest>=8.4.1",
+]
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = "-ra -q"
+pythonpath = [
+    "",
+]
+testpaths = [
+    "tests",
+]
