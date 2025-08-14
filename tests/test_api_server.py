@@ -30,6 +30,7 @@ def post_session_response():
     except httpx.RequestError as e:
         pytest.fail(f"Request error while calling {e.request.url!r}: {e}")
 
+
 def test_post_session(post_session_response):
     """Test POST to sessions endpoint."""
     response = post_session_response["response"]
@@ -37,6 +38,7 @@ def test_post_session(post_session_response):
     data = response.json()
     assert "state" in data
 
+@pytest.mark.timeout(60)
 def test_post_run(post_session_response):
     """Test POST to /run endpoint using user_id and session_id from post_session_response."""
     user_id = post_session_response["user_id"]
@@ -68,7 +70,7 @@ def test_post_run(post_session_response):
     except httpx.RequestError as e:
         pytest.fail(f"Request error while calling {e.request.url!r}: {e}")
 
-
+@pytest.mark.timeout(60)
 def test_post_run_sse(post_session_response):
     """Test POST to /run_sse endpoint using dynamic user_id and session_id with streaming enabled."""
     user_id = post_session_response["user_id"]

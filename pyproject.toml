@@ -14,10 +14,12 @@ dependencies = [
 [dependency-groups]
 dev = [
     "pytest>=8.4.1",
+    "pytest-timeout>=2.4.0",
 ]
 [tool.pytest.ini_options]
 minversion = "8.0"
 addopts = "-ra -q"
+timeout=30
 pythonpath = [
     "",
 ]
