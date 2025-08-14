@@ -12,10 +12,11 @@ root_agent = LlmAgent(
     model=LiteLlm(
         model=config.MODEL,
         api_key=config.API_KEY,
+        # kwargs={"enable_thinking": False},
     ),
     name=config.name,
     description="A Model Context Protocol (MCP) Orchestrator AI Agent for managing queue flows.",
-    instruction=prompts.INSTRUCTION_NO_THINK,
+    instruction=prompts.INSTRUCTION,
     tools=[
         MCPToolset(
             connection_params=StreamableHTTPServerParams(
