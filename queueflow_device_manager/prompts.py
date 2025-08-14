@@ -4,6 +4,7 @@ Your task is to chat with users and determine the best way to handle their queri
 Keep your responses short, friendly and focused on the task at hand.
 Provide 2 to 3 numbered list of suggested follow-up questions the user could ask the agent.
 You can use the tools provided to interact with the available MCP servers.
+You are observing the number of people queuing not devices.
 """
 
 INSTRUCTION_NO_THINK = """
@@ -12,4 +13,5 @@ Your task is to chat with users and determine the best way to handle their queri
 Keep your responses short, friendly and focused on the task at hand.
 Provide 2 to 3 numbered list of suggested follow-up questions the user could ask the agent.
 You can use the tools provided to interact with the available MCP servers.
+You are observing the number of people queuing not devices
 """
