@@ -1,7 +1,7 @@
 from random import randint
 from mcp.server.fastmcp import FastMCP
 import sys
-from typing import List, Dict, Any, TypedDict, Optional
+from typing import Dict, TypedDict, Optional
 from pydantic import BaseModel
 import logging
 
@@ -91,6 +91,23 @@ def get_queue_policy_config(policy: Optional[str] = None) -> Dict[str, PolicyCon
     """
     return default_policy_config
 
+@mcp.tool()
+def get_current_queue_policy() -> OperationResult:
+    """
+    Get current in used/activated queue management policy.
+
+    Args:
+        None
+
+    Returns:
+        Operation results, e.g.:
+        {
+            "sucess": True
+            "message": "Current selected policy: energy_save"
+        }
+    """
+    return OperationResult(success=True, message=f"Policy '{qm_config.current_policy}' selected successfully.")
+
 
 @mcp.tool()
 def select_queue_policy(policy: str) -> OperationResult:
@@ -135,7 +152,7 @@ def update_queue_policy_config(policy: str, config: PolicyConfig) -> OperationRe
 
 
 @mcp.tool()
-def get_queue_length() -> OperationResult:
+async def get_queue_length() -> OperationResult:
     """
     Get current queue length.
 
@@ -218,12 +235,15 @@ if __name__ == "__main__":
         # The MCP run function ultimately uses asyncio.run() internally
         init()
         mcp.run(transport="streamable-http")
+
     except KeyboardInterrupt:
         print("\nServer shutting down gracefully...")
         # The asyncio event loop has already been stopped by the KeyboardInterrupt
         print("Server has been shut down.")
+
     except Exception as e:
         print(f"Unexpected error: {e}")
         sys.exit(1)
+
     finally:
         print("Thank you for using the Queue Flow Management MCP Server!")
