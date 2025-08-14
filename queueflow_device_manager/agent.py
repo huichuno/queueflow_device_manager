@@ -15,7 +15,7 @@ root_agent = LlmAgent(
     ),
     name=config.name,
     description="A Model Context Protocol (MCP) Orchestrator AI Agent for managing queue flows.",
-    instruction=prompts.INSTRUCTION,
+    instruction=prompts.INSTRUCTION_NO_THINK,
     tools=[
         MCPToolset(
             connection_params=StreamableHTTPServerParams(
