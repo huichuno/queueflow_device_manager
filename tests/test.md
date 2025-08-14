@@ -8,8 +8,9 @@ Make sure following are running:
 ```sh
 cd queueflow_device_manager
 
-# start MCP server
+# start MCP servers
 uv run tests/mock_queue_flow_mgmt.py
+uv run tests/mock_device_mgmt_toolkit.py
 
 # start AI Agent
 uv run main.py
