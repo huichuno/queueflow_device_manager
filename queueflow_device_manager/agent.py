@@ -24,10 +24,10 @@ root_agent = LlmAgent(
             ),
             tool_filter=[
                 "get_queue_policy",
-                "get_queue_policy_config",
                 "get_current_queue_policy",
                 "select_queue_policy",
-                "update_queue_policy_config",
+                "get_policy_config",
+                "update_policy_config",
                 "get_queue_length",
                 "start_queue_management",
                 "stop_queue_management",
@@ -39,7 +39,7 @@ root_agent = LlmAgent(
                 url="http://localhost:6970/mcp",
             ),
             tool_filter=[
-                "query_devices",
+                "get_devices",
                 "power_on_devices",
                 "power_off_devices",
             ],

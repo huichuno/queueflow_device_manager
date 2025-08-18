@@ -81,44 +81,6 @@ def get_queue_policy() -> list[str]:
     return [*queue_policy]
 
 @mcp.tool()
-def get_queue_policy_config(policy: Optional[List[str] | str] = None) -> Dict[str, PolicyConfig]:
-    """
-    Get the configuration for all queue management policies. Return the default and updated configuration.
-    
-    Args:
-        policy (list | None): List of target policies. Will returns all policies configuration if policy is None.
-
-    Returns:
-        Dictionary of queue management policy configuration keyed by policy name, e.g.:
-        {
-            "min_wait":
-                {
-                    arrival_rate: 1.5,
-                    service_rate: 0.5,
-                    min_devices: 1,
-                    buffer: 0.2,
-                    target_wait: 120,
-                }
-        }
-    """
-    global queue_policy
-    all_policy = [*queue_policy]
-    if (policy is None) or (not policy):
-        policy = all_policy
-    if isinstance(policy, str):
-        if (policy.lower() == "none") or (policy.lower() == "null") or (policy == "*"):
-            policy = all_policy
-        else: 
-            policy = ast.literal_eval(policy)
-    
-    config = {}
-    for p in policy:  # type: ignore
-        if p in all_policy:
-            config[p] = queue_policy[p]
-    
-    return config
-
-@mcp.tool()
 def get_current_queue_policy() -> OperationResult:
     """
     Get current in used/activated queue management policy.
@@ -191,7 +153,45 @@ def select_queue_policy(policy: str) -> OperationResult:
     )
 
 @mcp.tool()
-def update_queue_policy_config(policy: str, config: str) -> OperationResult: # type: ignore
+def get_policy_config(policy: Optional[List[str] | str] = None) -> Dict[str, PolicyConfig]:
+    """
+    Get the configuration for all queue management policies. Return the default and updated configuration.
+    
+    Args:
+        policy (list | None): List of target policies. Will returns all policies configuration if policy is None.
+
+    Returns:
+        Dictionary of queue management policy configuration keyed by policy name, e.g.:
+        {
+            "min_wait":
+                {
+                    arrival_rate: 1.5,
+                    service_rate: 0.5,
+                    min_devices: 1,
+                    buffer: 0.2,
+                    target_wait: 120,
+                }
+        }
+    """
+    global queue_policy
+    all_policy = [*queue_policy]
+    if (policy is None) or (not policy):
+        policy = all_policy
+    if isinstance(policy, str):
+        if (policy.lower() == "none") or (policy.lower() == "null") or (policy == "*"):
+            policy = all_policy
+        else: 
+            policy = ast.literal_eval(policy)
+    
+    config = {}
+    for p in policy:  # type: ignore
+        if p in all_policy:
+            config[p] = queue_policy[p]
+    
+    return config
+
+@mcp.tool()
+def update_policy_config(policy: str, config: str) -> OperationResult: # type: ignore
     """
     Update the queue management policy configuration.
 
@@ -224,15 +224,24 @@ def update_queue_policy_config(policy: str, config: str) -> OperationResult: # t
     # convert JSON string to dictionary
     if isinstance(config, str):
         config: PolicyConfig = json.loads(config)
-    # check dictionary match defined typeddict
+    
+    # check dictionary match defined PolicyConfig typeddict
     try:
         config = PolicyConfigValidator.validate_python(config)
+    # if dictionary not match with defined PolicyConfig typeddict (certain dictionary keys missing)
     except Exception as e:
-        return OperationResult(
-            success=False,
-            message=f"Failed to update policy configuration. {e}"
-        )
+        current_config = dict(queue_policy[policy])
+        for key in config.keys():
+            if key not in current_config:
+                return OperationResult(
+                    success=False,
+                    message=f"Failed to update policy configuration. Invalid key: {key}"
+                )
+            else:
+                current_config[key] = config[key]
+        config = current_config
     
+    # if the provided configuration is same with old configuration
     if config == queue_policy[policy]:
         return OperationResult(
             success=True,
@@ -346,7 +355,7 @@ def start_queue_management() -> OperationResult:
     # check if the process haven't run
     if (queue_management_process is None) or (hasattr(queue_management_process, "poll") and (queue_management_process.poll() is not None)):
         try:
-            log_file = open(log_path, "w", 1)
+            log_file = open(log_path, "a", 1)
             queue_management_process = subprocess.Popen(["uv", "run", "queue_management_utils.py", "--strategy", selected_policy, "--config", json.dumps(queue_policy)], stdout=log_file, stderr=log_file, bufsize=1)
             return OperationResult(
                 success=True,
