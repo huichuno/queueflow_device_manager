@@ -197,7 +197,7 @@ async def get_all_device():
 
 
 @mcp.tool()
-async def query_devices(dev_ids: Optional[List[str] | str] = None) -> Dict[str, DeviceInfo] | str:
+async def get_devices(dev_ids: Optional[List[str] | str] = None) -> Dict[str, DeviceInfo] | str:
     """
     Get status information for target devices.
     
