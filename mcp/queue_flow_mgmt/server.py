@@ -239,7 +239,7 @@ def update_policy_config(policy: str, config: str) -> OperationResult: # type: i
                 )
             else:
                 current_config[key] = config[key]
-        config = current_config
+        config = current_config # type: ignore
     
     # if the provided configuration is same with old configuration
     if config == queue_policy[policy]:

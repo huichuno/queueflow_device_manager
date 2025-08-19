@@ -71,7 +71,7 @@ def get_queue_policy() -> list[str]:
 
 
 @mcp.tool()
-def get_queue_policy_config(policy: Optional[str] = None) -> Dict[str, PolicyConfig]:
+def get_policy_config(policy: Optional[str] = None) -> Dict[str, PolicyConfig]:
     """
     Get the configuration for all queue management policies. Return the default and updated configuration.
     
@@ -131,7 +131,7 @@ def select_queue_policy(policy: str) -> OperationResult:
 
 
 @mcp.tool()
-def update_queue_policy_config(policy: str, config: PolicyConfig) -> OperationResult:
+def update_policy_config(policy: str, config: PolicyConfig) -> OperationResult:
     """
     Update the queue management policy configuration.
 
