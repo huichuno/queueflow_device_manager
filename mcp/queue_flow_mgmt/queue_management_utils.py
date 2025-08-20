@@ -1,11 +1,15 @@
+import os
 import sys
 import time
 import argparse
 import json
 import asyncio
 import dmt_utils
+from dotenv import load_dotenv
 from server import queue_policy, get_queue_length
 
+
+load_dotenv()
 
 # authorize the DMT session
 asyncio.run(dmt_utils.authorize())
@@ -13,7 +17,7 @@ asyncio.run(dmt_utils.authorize())
 asyncio.run(dmt_utils.get_all_device())
 
 global kafka_interval
-kafka_interval = 3 # in seconds
+kafka_interval = os.getenv("kafka_interval", 3) # in seconds
 
     
 def energy_save(

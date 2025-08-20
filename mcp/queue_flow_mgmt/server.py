@@ -3,12 +3,15 @@ import sys
 import ast
 import json
 import subprocess
+from dotenv import load_dotenv
 from typing import List, Dict, Any, TypedDict, Optional
 from pydantic import TypeAdapter
 from mcp.server.fastmcp import FastMCP
 from quixstreams import Application
 from confluent_kafka import TopicPartition
 
+
+load_dotenv()
 
 class PolicyConfig(TypedDict):
     arrival_rate: float
@@ -59,7 +62,7 @@ kafka_app = Application(
     auto_offset_reset="latest",
 )
 latest = 0
-kafka_timeout = 10
+kafka_timeout = os.getenv("kafka_timeout", 10) # in seconds
 
 # Initialize queue management process
 global queue_management_process
