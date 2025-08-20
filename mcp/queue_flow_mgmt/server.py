@@ -1,13 +1,17 @@
+import os
 import sys
 import ast
 import json
 import subprocess
+from dotenv import load_dotenv
 from typing import List, Dict, Any, TypedDict, Optional
 from pydantic import TypeAdapter
 from mcp.server.fastmcp import FastMCP
 from quixstreams import Application
 from confluent_kafka import TopicPartition
 
+
+load_dotenv()
 
 class PolicyConfig(TypedDict):
     arrival_rate: float
@@ -58,12 +62,15 @@ kafka_app = Application(
     auto_offset_reset="latest",
 )
 latest = 0
+kafka_timeout = int(os.getenv("kafka_timeout", 10)) # in seconds
 
-# Initialize queue managemenr process
+# Initialize queue management process
 global queue_management_process
 queue_management_process = None
 
-log_path = "log.log"
+queue_management_dir = os.path.dirname(os.path.abspath(__file__))
+log_path = os.path.join(queue_management_dir, "qflow.log")
+queue_management_script = os.path.join(queue_management_dir, "queue_management_utils.py")
 
 
 @mcp.tool()
@@ -291,7 +298,13 @@ async def get_queue_length() -> OperationResult:
         partition = 0  # adjust if multiple partitions
 
         # Get the latest offset (high watermark)
-        low, high = consumer.get_watermark_offsets(TopicPartition(topic, partition))
+        try:
+            low, high = consumer.get_watermark_offsets(TopicPartition(topic, partition), timeout=kafka_timeout)
+        except Exception as e:
+            return OperationResult(
+                success=False,
+                message=f"Failed to get watermark offsets. {e}"
+            )
 
         if high > latest:
             latest = high
@@ -304,7 +317,15 @@ async def get_queue_length() -> OperationResult:
         # Assign consumer to the latest offset (start consuming new messages only)
         consumer.assign([TopicPartition(topic, partition, high-1)])
 
-        msg = consumer.poll(0.1)
+        # Poll for new message
+        try:
+            msg = consumer.poll(0.1)
+        except Exception as e:
+            return OperationResult(
+                success=False,
+                message=f"Failed to poll new message. {e}"
+            )
+        
         if msg is None:
             return OperationResult(
                 success=False,
@@ -356,7 +377,7 @@ def start_queue_management() -> OperationResult:
     if (queue_management_process is None) or (hasattr(queue_management_process, "poll") and (queue_management_process.poll() is not None)):
         try:
             log_file = open(log_path, "a", 1)
-            queue_management_process = subprocess.Popen(["uv", "run", "queue_management_utils.py", "--strategy", selected_policy, "--config", json.dumps(queue_policy)], stdout=log_file, stderr=log_file, bufsize=1)
+            queue_management_process = subprocess.Popen(["uv", "run", queue_management_script, "--strategy", selected_policy, "--config", json.dumps(queue_policy)], stdout=log_file, stderr=log_file, bufsize=1)
             return OperationResult(
                 success=True,
                 message="Successfully start queue management process."
@@ -398,6 +419,11 @@ def stop_queue_management() -> OperationResult:
     try:
         queue_management_process.terminate()
         queue_management_process = None
+
+        with open(log_path, "a", 1) as log_file:
+            log_file.write("Stop Queue management process\n")
+            log_file.write("===========================================================\n")
+        
         return OperationResult(
             success=True,
             message="Successfully stop queue management process."
