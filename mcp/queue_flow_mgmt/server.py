@@ -1,3 +1,4 @@
+import os
 import sys
 import ast
 import json
@@ -63,7 +64,9 @@ latest = 0
 global queue_management_process
 queue_management_process = None
 
-log_path = "log.log"
+queue_management_dir = os.path.dirname(os.path.abspath(__file__))
+log_path = os.path.join(queue_management_dir, "log.log")
+queue_management_script = os.path.join(queue_management_dir, "queue_management_utils.py")
 
 
 @mcp.tool()
@@ -356,7 +359,7 @@ def start_queue_management() -> OperationResult:
     if (queue_management_process is None) or (hasattr(queue_management_process, "poll") and (queue_management_process.poll() is not None)):
         try:
             log_file = open(log_path, "a", 1)
-            queue_management_process = subprocess.Popen(["uv", "run", "queue_management_utils.py", "--strategy", selected_policy, "--config", json.dumps(queue_policy)], stdout=log_file, stderr=log_file, bufsize=1)
+            queue_management_process = subprocess.Popen(["uv", "run", queue_management_script, "--strategy", selected_policy, "--config", json.dumps(queue_policy)], stdout=log_file, stderr=log_file, bufsize=1)
             return OperationResult(
                 success=True,
                 message="Successfully start queue management process."
@@ -398,6 +401,11 @@ def stop_queue_management() -> OperationResult:
     try:
         queue_management_process.terminate()
         queue_management_process = None
+
+        with open(log_path, "a", 1) as log_file:
+            log_file.write("Queue management process stopped.\n")
+            log_file.write("===========================================================\n")
+        
         return OperationResult(
             success=True,
             message="Successfully stop queue management process."
