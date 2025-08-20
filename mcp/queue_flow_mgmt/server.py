@@ -66,7 +66,7 @@ global queue_management_process
 queue_management_process = None
 
 queue_management_dir = os.path.dirname(os.path.abspath(__file__))
-log_path = os.path.join(queue_management_dir, "log.log")
+log_path = os.path.join(queue_management_dir, "qflow.log")
 queue_management_script = os.path.join(queue_management_dir, "queue_management_utils.py")
 
 
