@@ -94,11 +94,9 @@ def calculate_devices(strategy: str, arrival_rate, service_rate, queue_length, c
 def manage_queue(strategy: str, config: str):
     while True:
         queue_length_result = asyncio.run(get_queue_length())
-        # if fail to get queue_length, continue next loop
+        # if fail to get queue_length, raise error
         if not queue_length_result["success"]: 
-            print(queue_length_result["message"], flush=True)
-            time.sleep(kafka_interval)
-            continue
+            raise Exception(f"Failed to get queue length. {queue_length_result['message']}")
         queue_length = int(queue_length_result["message"])
         print(f"Queue Length: {queue_length}", flush=True)
 

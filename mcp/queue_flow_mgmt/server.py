@@ -316,7 +316,7 @@ async def get_queue_length() -> OperationResult:
 
         # Poll for new message
         try:
-            msg = consumer.poll(0.1, timeout=kafka_timeout)
+            msg = consumer.poll(0.1)
         except Exception as e:
             return OperationResult(
                 success=False,
