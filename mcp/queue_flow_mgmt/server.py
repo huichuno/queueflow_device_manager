@@ -62,7 +62,7 @@ kafka_app = Application(
     auto_offset_reset="latest",
 )
 latest = 0
-kafka_timeout = os.getenv("kafka_timeout", 10) # in seconds
+kafka_timeout = int(os.getenv("kafka_timeout", 10)) # in seconds
 
 # Initialize queue management process
 global queue_management_process
@@ -421,7 +421,7 @@ def stop_queue_management() -> OperationResult:
         queue_management_process = None
 
         with open(log_path, "a", 1) as log_file:
-            log_file.write("Queue management process stopped.\n")
+            log_file.write("Stop Queue management process\n")
             log_file.write("===========================================================\n")
         
         return OperationResult(

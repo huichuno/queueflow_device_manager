@@ -11,13 +11,8 @@ from server import queue_policy, get_queue_length
 
 load_dotenv()
 
-# authorize the DMT session
-asyncio.run(dmt_utils.authorize())
-# get all device in the network
-asyncio.run(dmt_utils.get_all_device())
-
 global kafka_interval
-kafka_interval = os.getenv("kafka_interval", 3) # in seconds
+kafka_interval = int(os.getenv("kafka_interval", 3)) # in seconds
 
     
 def energy_save(
@@ -99,7 +94,7 @@ def manage_queue(strategy: str, config: str):
     while True:
         queue_length_result = asyncio.run(get_queue_length())
         # if fail to get queue_length, raise error
-        if not queue_length_result["success"]: 
+        if not queue_length_result["success"]:
             raise Exception(f"Failed to get queue length. {queue_length_result['message']}")
         queue_length = int(queue_length_result["message"])
         print(f"Queue Length: {queue_length}", flush=True)
@@ -174,7 +169,13 @@ def parse_args(argv=None):
 
 if __name__ == '__main__':
     args = parse_args(sys.argv[1:])
+    print("Initialize queue management process", flush=True)
+    print("===========================================================", flush=True)
+    # authorize the DMT session
+    asyncio.run(dmt_utils.authorize())
+    # get all device in the network
+    asyncio.run(dmt_utils.get_all_device())
 
-    print("Queue management process started.", flush=True)
+    print("Start Queue management process", flush=True)
     print("===========================================================", flush=True)
     manage_queue(strategy=args.strategy, config=args.config)
