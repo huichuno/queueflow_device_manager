@@ -173,4 +173,6 @@ def parse_args(argv=None):
 if __name__ == '__main__':
     args = parse_args(sys.argv[1:])
 
+    print("Queue management process started.", flush=True)
+    print("===========================================================", flush=True)
     manage_queue(strategy=args.strategy, config=args.config)
