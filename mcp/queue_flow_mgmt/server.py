@@ -59,8 +59,9 @@ kafka_app = Application(
     auto_offset_reset="latest",
 )
 latest = 0
+kafka_timeout = 10
 
-# Initialize queue managemenr process
+# Initialize queue management process
 global queue_management_process
 queue_management_process = None
 
@@ -294,7 +295,13 @@ async def get_queue_length() -> OperationResult:
         partition = 0  # adjust if multiple partitions
 
         # Get the latest offset (high watermark)
-        low, high = consumer.get_watermark_offsets(TopicPartition(topic, partition))
+        try:
+            low, high = consumer.get_watermark_offsets(TopicPartition(topic, partition), timeout=kafka_timeout)
+        except Exception as e:
+            return OperationResult(
+                success=False,
+                message=f"Failed to get watermark offsets. {e}"
+            )
 
         if high > latest:
             latest = high
@@ -307,7 +314,15 @@ async def get_queue_length() -> OperationResult:
         # Assign consumer to the latest offset (start consuming new messages only)
         consumer.assign([TopicPartition(topic, partition, high-1)])
 
-        msg = consumer.poll(0.1)
+        # Poll for new message
+        try:
+            msg = consumer.poll(0.1, timeout=kafka_timeout)
+        except Exception as e:
+            return OperationResult(
+                success=False,
+                message=f"Failed to poll new message. {e}"
+            )
+        
         if msg is None:
             return OperationResult(
                 success=False,
