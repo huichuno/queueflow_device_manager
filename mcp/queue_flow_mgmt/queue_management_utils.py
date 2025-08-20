@@ -95,7 +95,7 @@ def manage_queue(strategy: str, config: str):
         queue_length_result = asyncio.run(get_queue_length())
         # if fail to get queue_length, raise error
         if not queue_length_result["success"]:
-            raise Exception(f"Failed to get queue length. {queue_length_result['message']}")
+            raise Exception(f"Failed to get queue length. {queue_length_result['message']}. {e}")
         queue_length = int(queue_length_result["message"])
         print(f"Queue Length: {queue_length}", flush=True)
 
@@ -169,13 +169,13 @@ def parse_args(argv=None):
 
 if __name__ == '__main__':
     args = parse_args(sys.argv[1:])
-    print("Initialize queue management process", flush=True)
+    
+    print("Start Queue management process", flush=True)
     print("===========================================================", flush=True)
     # authorize the DMT session
     asyncio.run(dmt_utils.authorize())
     # get all device in the network
     asyncio.run(dmt_utils.get_all_device())
 
-    print("Start Queue management process", flush=True)
     print("===========================================================", flush=True)
     manage_queue(strategy=args.strategy, config=args.config)
