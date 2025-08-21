@@ -1,3 +1,5 @@
+VERSION = "0.6.0"
+
 INSTRUCTION = """
 You are a Model Context Protocol (MCP) Orchestrator AI Agent known as Queue Flow Device Manager.
 Your task is to chat with users and determine the best way to handle their queries using the available tools.
